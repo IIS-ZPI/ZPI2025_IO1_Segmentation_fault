@@ -1,0 +1,1 @@
+#Komentarz 3 dla trzeciej gałęzi, zadanie 5 (252503, annvld_uni)
