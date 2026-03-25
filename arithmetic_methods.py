@@ -25,4 +25,13 @@ class IArithmeticsMult(ABC):
 
 class ArithmeticsMult(IArithmeticsMult):
     def multiplication(self, A: float, B: float) -> float:
-        return A * B        
+        return A * B
+      
+ class IArithmeticsDiv(ABC):
+    @abstractmethod
+    def division(self, A: float, B: float) -> float:
+        pass
+
+class ArithmeticsDiv(IArithmeticsDiv):
+    def division(self, A: float, B: float) -> float:
+        return A / B
