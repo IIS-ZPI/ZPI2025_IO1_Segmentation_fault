@@ -8,3 +8,8 @@ class IArithmeticsAdd(ABC):
 class ArithmeticsAdd(IArithmeticsAdd):
     def addition(self, A: float, B: float) -> float:
         return A + B
+
+class IArithmeticsDiff(ABC):
+    @abstractmethod
+    def difference(self, A: float, B: float) -> float:
+        pass
