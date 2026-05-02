@@ -12,8 +12,8 @@ def get_exchange_rates(
 
     Parameters:
         currency (str): Currency in ISO4217 code format.
-        start_date (str): Start date in string format 'YYYY-MM-DD'
-        end_date (str): End date in string format 'YYYY-MM-DD'
+        start_date (str): Start date in string format 'YYYY-MM-DD'.
+        end_date (str): End date in string format 'YYYY-MM-DD'.
 
     Returns:
         pandas.DataFrame: DataFrame with dates and the exchange rate for each one.
