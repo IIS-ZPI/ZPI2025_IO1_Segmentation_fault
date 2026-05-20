@@ -3,6 +3,8 @@ from datetime import date, datetime
 import pandas
 import requests
 
+FIRST_VALID_DATE = datetime(2002, 1, 2)
+
 
 def get_exchange_rates(
     currency: str, start_date: str, end_date: str
@@ -22,7 +24,7 @@ def get_exchange_rates(
     start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
     end_datetime = datetime.strptime(end_date, "%Y-%m-%d")
 
-    if start_datetime < datetime(2002, 1, 2):
+    if start_datetime < FIRST_VALID_DATE:
         raise ValueError("The start date cannot be before the 2nd of January 2002!")
 
     if end_datetime.date() > date.today():
@@ -43,7 +45,7 @@ def get_exchange_rates(
     exchange_rates = data.get("rates", [])
 
     if not exchange_rates:
-        raise ValueError("No data reutrned with the given parameters.")
+        raise ValueError("No data returned with the given parameters.")
 
     exchange_rates = pandas.DataFrame(exchange_rates)
 
