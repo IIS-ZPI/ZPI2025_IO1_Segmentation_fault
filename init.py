@@ -1,57 +1,47 @@
-from enum import Enum
+import streamlit as st
 
-import streamlit
+from src.ui import base_price_analysis, forex_pair_analysis
 
-from src.ui import (
-    base_price_analysis,
-    forex_pair_analysis,
-)
-
-streamlit.set_page_config(
+st.set_page_config(
     page_title="Forex Advisory",
     page_icon="📈",
     layout="wide",
 )
 
+page_base = st.Page(
+    base_price_analysis.render,
+    title="Base Price Analysis",
+    url_path="base-price-analysis",
+)
+page_forex = st.Page(
+    forex_pair_analysis.render,
+    title="Forex Pair Analysis",
+    url_path="forex-pair-analysis",
+)
 
-class Screen(Enum):
-    BASE_PRICE_ANALYSIS = "Base Price Analysis"
-    FOREX_PAIR_ANALYSIS = "Forex Pair Analysis"
+pg = st.navigation([page_base, page_forex], position="hidden")
 
+col_logo, col_spacer, col_nav1, col_nav2 = st.columns([2, 3, 1.5, 1.5])
 
-def initialize_state():
-    if "screen" not in streamlit.session_state:
-        streamlit.session_state.screen = Screen.BASE_PRICE_ANALYSIS
+with col_logo:
+    st.image("assets/ForexAdvisory.svg", width=120)
 
+with col_nav1:
+    if st.button(
+        "Base Price Analysis",
+        width="stretch",
+        type="primary" if pg == page_base else "secondary",
+    ):
+        st.switch_page(page_base)
 
-def render_dashboard():
-    streamlit.image("assets/ForexAdvisory.svg", width=120)
+with col_nav2:
+    if st.button(
+        "Forex Pair Analysis",
+        width="stretch",
+        type="primary" if pg == page_forex else "secondary",
+    ):
+        st.switch_page(page_forex)
 
-    col1, col2 = streamlit.columns(2)
+st.divider()
 
-    with col1:
-        if streamlit.button("Base Price Analysis", use_container_width=True):
-            streamlit.session_state.screen = Screen.BASE_PRICE_ANALYSIS
-
-    with col2:
-        if streamlit.button("Forex Pair Analysis", use_container_width=True):
-            streamlit.session_state.screen = Screen.FOREX_PAIR_ANALYSIS
-
-    streamlit.divider()
-
-
-def render_screen():
-    if streamlit.session_state.screen == Screen.BASE_PRICE_ANALYSIS:
-        base_price_analysis.render()
-    elif streamlit.session_state.screen == Screen.FOREX_PAIR_ANALYSIS:
-        forex_pair_analysis.render()
-
-
-def run():
-    initialize_state()
-    render_dashboard()
-    render_screen()
-
-
-if __name__ == "__main__":
-    run()
+pg.run()
