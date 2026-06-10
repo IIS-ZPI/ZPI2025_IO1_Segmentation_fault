@@ -1,4 +1,12 @@
-from src.utils.exchange_rates import get_exchange_rates
+import os
+import sys
 
-if __name__ == "__main__":
-    print(get_exchange_rates("EUR", "2026-03-30", "2026-04-10"))
+from streamlit.web import cli
+
+sys.argv = [
+    "streamlit",
+    "run",
+    os.path.abspath("init.py"),
+]
+
+sys.exit(cli.main())
