@@ -48,12 +48,22 @@ CURRENCIES = {
     "THB": "Thai Baht",
     "TRY": "Turkish Lira",
     "UAH": "Ukrainian Hryvnia",
-    "XDR": "IMF SDR",
     "ZAR": "South African Rand",
 }
 
 
 def render():
+    streamlit.markdown(
+        """
+        <style>
+        [data-testid="stVerticalBlock"] {
+            border-color: #e2e2e2 !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     column_type, column_date, column_currency = streamlit.columns(3)
 
     with column_type:
@@ -70,7 +80,11 @@ def render():
         )
 
     with column_currency:
-        currency = streamlit.selectbox("Currency", list(CURRENCIES.keys()))
+        currency = streamlit.selectbox(
+            "Currency",
+            list(CURRENCIES.keys()),
+            format_func=lambda code: f"{CURRENCIES[code]} ({code})",
+        )
 
     end_date = start_date + timedelta(days=PERIODS[period_label])
     if end_date > date.today():
@@ -216,24 +230,37 @@ def render():
         column_table, column_chart = streamlit.columns(2)
 
         with column_table:
-            streamlit.dataframe(session_counts_df, width="stretch", hide_index=True)
+            streamlit.dataframe(
+                session_counts_df,
+                width="stretch",
+                hide_index=True,
+            )
 
         with column_chart:
             session_counts_chart = (
                 altair.Chart(session_counts_df)
                 .mark_bar(color="#000299")
                 .encode(
-                    y=altair.Y("Type:N", axis=altair.Axis(title=None), sort=None),
+                    y=altair.Y(
+                        "Type:N", axis=altair.Axis(title=None, grid=False), sort=None
+                    ),
                     x=altair.X(
                         "Count:Q",
                         scale=altair.Scale(
                             domain=[
                                 0,
-                                max(rising_sessions, steady_sessions, falling_sessions)
-                                + 1,
+                                max(rising_sessions, steady_sessions, falling_sessions),
                             ]
                         ),
-                        axis=altair.Axis(title=None),
+                        axis=altair.Axis(
+                            title=None,
+                            tickMinStep=1,
+                            format="d",
+                            tickCount=max(
+                                rising_sessions, steady_sessions, falling_sessions
+                            ),
+                            grid=False,
+                        ),
                     ),
                 )
                 .properties(height=3 * 35 + 38)
