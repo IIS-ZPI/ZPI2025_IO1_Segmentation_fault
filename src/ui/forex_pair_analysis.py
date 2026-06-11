@@ -71,6 +71,7 @@ def render():
             value=min(
                 date.today() - timedelta(days=PERIODS[period_label]), maximum_start_date
             ),
+            min_value=date(2002, 1, 2),
             max_value=maximum_start_date,
         )
 
