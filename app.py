@@ -1,3 +1,12 @@
+import os
+import sys
 
-if __name__ == '__main__':
-    print("hello world!")
+from streamlit.web import cli
+
+sys.argv = [
+    "streamlit",
+    "run",
+    os.path.abspath("init.py"),
+]
+
+sys.exit(cli.main())
