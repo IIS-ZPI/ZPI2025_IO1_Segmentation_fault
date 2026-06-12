@@ -128,7 +128,7 @@ def render():
             rate_min = exchange_rates["rate"].min()
             rate_max = exchange_rates["rate"].max()
             rate_padding = (rate_max - rate_min) * 0.1
-            price_chart = (
+            price_line = (
                 altair.Chart(exchange_rates)
                 .mark_line(color="#000299")
                 .encode(
@@ -142,12 +142,25 @@ def render():
                     ),
                 )
             )
+            price_points = (
+                altair.Chart(exchange_rates)
+                .mark_point(color="#000299", filled=True, size=16)
+                .encode(
+                    x=altair.X("date:T"),
+                    y=altair.Y("rate:Q"),
+                    tooltip=[
+                        altair.Tooltip("date:T", title="Date"),
+                        altair.Tooltip("rate:Q", title="Rate (PLN)", format=".4f"),
+                    ],
+                )
+            )
             current_price_rule = (
                 altair.Chart(pandas.DataFrame({"price": [current_price]}))
                 .mark_rule(color="#888", strokeDash=[10, 10], opacity=0.25)
                 .encode(y=altair.Y("price:Q"))
             )
-            streamlit.altair_chart(price_chart + current_price_rule, width="stretch")
+            price_chart = price_line + price_points + current_price_rule
+            streamlit.altair_chart(price_chart, width="stretch")
 
         with column_price:
             streamlit.markdown(
@@ -173,11 +186,11 @@ def render():
                         text-align: right;
                     ">{CURRENCIES[currency]}</div>
                     <div style="
-                        font-size: 48px;
+                        font-size: 36px;
                         font-weight: 700;
                         line-height: 1;
                         letter-spacing: -0.02em;
-                    ">{current_price:.4f}</div>
+                    ">{current_price:.4f} PLN</div>
                     <div style="
                         background: {price_change_color};
                         margin-top: 8px;
@@ -200,12 +213,15 @@ def render():
         statistical_measures = calculate_statistical_measures(exchange_rates)
         statistical_measures_df = pandas.DataFrame(
             [
-                ("Median", statistical_measures.get("median")),
-                ("Mode", statistical_measures.get("mode")),
-                ("Standard Deviation", statistical_measures.get("standard_deviation")),
+                ("Median", f"{statistical_measures.get('median'):.4f} PLN"),
+                ("Mode", f"{statistical_measures.get('mode'):.4f} PLN"),
+                (
+                    "Standard Deviation",
+                    f"{statistical_measures.get('standard_deviation'):.4f}",
+                ),
                 (
                     "Coefficient of Variation",
-                    statistical_measures.get("coefficient_of_variation"),
+                    f"{statistical_measures.get('coefficient_of_variation'):.4f}",
                 ),
             ],
             columns=["Indicator", "Value"],
