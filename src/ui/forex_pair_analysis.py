@@ -5,6 +5,7 @@ import numpy
 import pandas
 import streamlit
 
+from src.ui.i18n import translate
 from src.utils.exchange_rates import get_exchange_rates
 
 PERIODS = {
@@ -178,12 +179,14 @@ def render():
     column_type, column_date, column_currency1, column_currency2 = streamlit.columns(4)
 
     with column_type:
-        period_label = streamlit.selectbox("Analysis Type", list(PERIODS.keys()))
+        period_label = streamlit.selectbox(
+            translate("analysis_type"), list(PERIODS.keys()), format_func=translate
+        )
 
     with column_date:
         maximum_start_date = date.today() - timedelta(days=PERIODS[period_label])
         start_date = streamlit.date_input(
-            "Start Date",
+            translate("start_date"),
             value=min(
                 date.today() - timedelta(days=PERIODS[period_label]), maximum_start_date
             ),
@@ -193,14 +196,14 @@ def render():
 
     with column_currency1:
         currency_1 = streamlit.selectbox(
-            "First Currency",
+            translate("first_currency"),
             list(CURRENCIES.keys()),
             format_func=lambda code: f"{CURRENCIES[code]} ({code})",
         )
 
     with column_currency2:
         currency_2 = streamlit.selectbox(
-            "Second Currency",
+            translate("second_currency"),
             list(CURRENCIES.keys()),
             index=1,
             format_func=lambda code: f"{CURRENCIES[code]} ({code})",
@@ -211,7 +214,7 @@ def render():
         end_date = date.today()
 
     try:
-        with streamlit.spinner("Fetching exchange rates..."):
+        with streamlit.spinner(translate("fetching_exchange_rates")):
             rates_1 = get_exchange_rates(
                 currency_1,
                 start_date.strftime("%Y-%m-%d"),
@@ -223,11 +226,11 @@ def render():
                 end_date.strftime("%Y-%m-%d"),
             )
     except Exception as e:
-        streamlit.error(f"Failed to retrieve exchange rates: {e}")
+        streamlit.error(translate("failed_to_retrieve", error=e))
         return
 
     if rates_1.empty or rates_2.empty:
-        streamlit.warning("No data returned for the selected range.")
+        streamlit.warning(translate("no_data_returned"))
         return
 
     rates_1["date"] = pandas.to_datetime(rates_1["date"]).dt.date
@@ -236,7 +239,7 @@ def render():
     merged = rates_1.merge(rates_2, on="date", suffixes=("_1", "_2"))
 
     if merged.empty:
-        streamlit.warning("No overlapping dates between the two currencies.")
+        streamlit.warning(translate("no_overlapping_dates"))
         return
 
     merged["cross_rate"] = merged["rate_1"] / merged["rate_2"]
@@ -244,7 +247,7 @@ def render():
     changes = merged["cross_rate"].diff().dropna()
 
     if changes.empty:
-        streamlit.warning("Not enough data points to compute changes.")
+        streamlit.warning(translate("not_enough_data"))
         return
 
     counts, bin_edges = numpy.histogram(changes, bins="auto")
@@ -266,7 +269,9 @@ def render():
 
     pair_title = f"{currency_1_label} / {currency_2_label}"
 
-    streamlit.markdown(f"**Cross-Rate Change Distribution — {pair_title}**")
+    streamlit.markdown(
+        f"**{translate('cross_rate_distribution', pair=pair_title)}**"
+    )
 
     column_hist, column_table = streamlit.columns(2)
 
@@ -275,10 +280,10 @@ def render():
             altair.Chart(hist_data)
             .mark_bar(color="#000299")
             .encode(
-                x=altair.X("count:Q", axis=altair.Axis(title="Frequency")),
+                x=altair.X("count:Q", axis=altair.Axis(title=translate("frequency"))),
                 y=altair.Y(
                     "bin_range:N",
-                    title="Change",
+                    title=translate("change"),
                     sort=None,
                     axis=altair.Axis(labelLimit=200),
                 ),
@@ -289,5 +294,5 @@ def render():
 
     with column_table:
         table_data = hist_data[["bin_range", "count"]].copy()
-        table_data.columns = ["Bin Range", "Count"]
+        table_data.columns = [translate("bin_range"), translate("count")]
         streamlit.dataframe(table_data, width="stretch", hide_index=True)
