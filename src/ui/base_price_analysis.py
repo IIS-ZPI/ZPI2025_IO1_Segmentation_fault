@@ -4,6 +4,7 @@ import altair
 import pandas
 import streamlit
 
+from src.ui.i18n import translate
 from src.utils.exchange_rates import get_exchange_rates
 from src.utils.session_analysis import session_analysis
 from src.utils.statistical_measures import calculate_statistical_measures
@@ -183,12 +184,14 @@ def render():
     column_type, column_date, column_currency = streamlit.columns(3)
 
     with column_type:
-        period_label = streamlit.selectbox("Analysis Type", list(PERIODS.keys()))
+        period_label = streamlit.selectbox(
+            translate("analysis_type"), list(PERIODS.keys()), format_func=translate
+        )
 
     with column_date:
         maximum_start_date = date.today() - timedelta(days=PERIODS[period_label])
         start_date = streamlit.date_input(
-            "Start Date",
+            translate("start_date"),
             value=min(
                 date.today() - timedelta(days=PERIODS[period_label]), maximum_start_date
             ),
@@ -198,7 +201,7 @@ def render():
 
     with column_currency:
         currency = streamlit.selectbox(
-            "Currency",
+            translate("currency"),
             list(CURRENCIES.keys()),
             format_func=lambda code: f"{CURRENCIES[code]} ({code})",
         )
@@ -208,18 +211,18 @@ def render():
         end_date = date.today()
 
     try:
-        with streamlit.spinner("Fetching exchange rates..."):
+        with streamlit.spinner(translate("fetching_exchange_rates")):
             exchange_rates = get_exchange_rates(
                 currency,
                 start_date.strftime("%Y-%m-%d"),
                 end_date.strftime("%Y-%m-%d"),
             )
     except Exception as e:
-        streamlit.error(f"Failed to retrieve exchange rates: {e}")
+        streamlit.error(translate("failed_to_retrieve", error=e))
         return
 
     if exchange_rates.empty:
-        streamlit.warning("No data returned for the selected range.")
+        streamlit.warning(translate("no_data_returned"))
         return
 
     exchange_rates["date"] = pandas.to_datetime(exchange_rates["date"]).dt.date
@@ -240,7 +243,7 @@ def render():
         column_chart, column_price = streamlit.columns([3, 1])
 
         with column_chart:
-            streamlit.markdown("**Price**")
+            streamlit.markdown(f"**{translate('price')}**")
             rate_min = exchange_rates["rate"].min()
             rate_max = exchange_rates["rate"].max()
             rate_padding = (rate_max - rate_min) * 0.1
@@ -265,8 +268,10 @@ def render():
                     x=altair.X("date:T"),
                     y=altair.Y("rate:Q"),
                     tooltip=[
-                        altair.Tooltip("date:T", title="Date"),
-                        altair.Tooltip("rate:Q", title="Rate (PLN)", format=".4f"),
+                        altair.Tooltip("date:T", title=translate("date")),
+                        altair.Tooltip(
+                            "rate:Q", title=translate("rate_pln"), format=".4f"
+                        ),
                     ],
                 )
             )
@@ -294,7 +299,7 @@ def render():
                         font-size: 1rem;
                         font-weight: 600;
                         color: #0a0a0a;
-                    ">Current Price</div>
+                    ">{translate('current_price')}</div>
                     <div style="
                         margin-top: 24px;
                         font-size: 1.25rem;
@@ -325,27 +330,27 @@ def render():
     column_stats, column_sessions = streamlit.columns(2)
 
     with column_stats:
-        streamlit.markdown("**Statistical Indicators**")
+        streamlit.markdown(f"**{translate('statistical_indicators')}**")
         statistical_measures = calculate_statistical_measures(exchange_rates)
         statistical_measures_df = pandas.DataFrame(
             [
-                ("Median", f"{statistical_measures.get('median'):.4f} PLN"),
-                ("Mode", f"{statistical_measures.get('mode'):.4f} PLN"),
+                (translate("median"), f"{statistical_measures.get('median'):.4f} PLN"),
+                (translate("mode"), f"{statistical_measures.get('mode'):.4f} PLN"),
                 (
-                    "Standard Deviation",
+                    translate("standard_deviation"),
                     f"{statistical_measures.get('standard_deviation'):.4f}",
                 ),
                 (
-                    "Coefficient of Variation",
+                    translate("coefficient_of_variation"),
                     f"{statistical_measures.get('coefficient_of_variation'):.4f}",
                 ),
             ],
-            columns=["Indicator", "Value"],
+            columns=[translate("indicator"), translate("value")],
         )
         streamlit.dataframe(statistical_measures_df, width="stretch", hide_index=True)
 
     with column_sessions:
-        streamlit.markdown("**Price Changes**")
+        streamlit.markdown(f"**{translate('price_changes')}**")
         session_counts = session_analysis(exchange_rates)
         rising_sessions = session_counts.get("Rising session", 0)
         steady_sessions = session_counts.get("Steady session", 0)
@@ -353,9 +358,9 @@ def render():
 
         session_counts_df = pandas.DataFrame(
             [
-                ("Upwards", rising_sessions),
-                ("No Change", steady_sessions),
-                ("Downwards", falling_sessions),
+                (translate("upwards"), rising_sessions),
+                (translate("no_change"), steady_sessions),
+                (translate("downwards"), falling_sessions),
             ],
             columns=["Type", "Count"],
         )
@@ -364,7 +369,9 @@ def render():
 
         with column_table:
             streamlit.dataframe(
-                session_counts_df,
+                session_counts_df.rename(
+                    columns={"Type": translate("type"), "Count": translate("count")}
+                ),
                 width="stretch",
                 hide_index=True,
             )
