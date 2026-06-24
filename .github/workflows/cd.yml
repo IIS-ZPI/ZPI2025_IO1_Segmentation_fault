@@ -13,9 +13,9 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            asset_name: app-linux
+            asset_name: ForexAdvisory
           - os: windows-latest
-            asset_name: app-windows.exe
+            asset_name: ForexAdvisory.exe
 
     steps:
       - uses: actions/checkout@v4
