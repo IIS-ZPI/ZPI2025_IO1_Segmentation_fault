@@ -1,6 +1,9 @@
 import os
 import sys
 
+
+os.environ.setdefault("STREAMLIT_GLOBAL_DEVELOPMENT_MODE", "false")
+
 from streamlit.web import cli
 
 BASE_DIR = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))

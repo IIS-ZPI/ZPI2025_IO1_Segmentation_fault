@@ -4,6 +4,7 @@ datas = [
     ('init.py', '.'),
     ('src', 'src'),
     ('assets', 'assets'),
+    ('.streamlit', '.streamlit'),
 ]
 binaries = []
 hiddenimports = []
