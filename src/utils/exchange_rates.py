@@ -11,7 +11,7 @@ def get_exchange_rates(
 ) -> pandas.DataFrame:
     """
     This function fetches historical exchange rates for a given currency in a given period from the official NBP API.
-
+    Tries table A first, then falls back to table B.
     Parameters:
         currency (str): Currency in ISO4217 code format.
         start_date (str): Start date in string format 'YYYY-MM-DD'
@@ -47,6 +47,13 @@ def get_exchange_rates(
 
     if response.status_code != 200:
         raise ValueError(f"Cannot retrieve the exhange rates: {response.text}")
+    for table in ("a", "b"):
+        endpoint = f"https://api.nbp.pl/api/exchangerates/rates/{table}/{currency.lower()}/{start_date}/{end_date}/?format=json"
+        response = requests.get(endpoint)
+        if response.status_code == 200:
+            break
+    else:
+        raise ValueError(f"Cannot retrieve the exchange rates: {response.text}")
 
     data = response.json()
 
