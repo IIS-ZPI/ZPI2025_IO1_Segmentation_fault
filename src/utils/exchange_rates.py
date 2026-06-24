@@ -41,12 +41,6 @@ def get_exchange_rates(
         })
         return pln_dataframe
 
-    endpoint = f"https://api.nbp.pl/api/exchangerates/rates/a/{currency.lower()}/{start_date}/{end_date}/?format=json"
-
-    response = requests.get(endpoint)
-
-    if response.status_code != 200:
-        raise ValueError(f"Cannot retrieve the exhange rates: {response.text}")
     for table in ("a", "b"):
         endpoint = f"https://api.nbp.pl/api/exchangerates/rates/{table}/{currency.lower()}/{start_date}/{end_date}/?format=json"
         response = requests.get(endpoint)
