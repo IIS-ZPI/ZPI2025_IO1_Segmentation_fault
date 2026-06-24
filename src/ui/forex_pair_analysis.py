@@ -114,6 +114,7 @@ CURRENCIES = {
     "PEN": "Peruvian Sol",
     "PGK": "Papua New Guinean Kina",
     "PHP": "Philippine Peso",
+    "PLN": "Polish Zloty",
     "PKR": "Pakistani Rupee",
     "PYG": "Paraguayan Guaraní",
     "QAR": "Qatari Rial",

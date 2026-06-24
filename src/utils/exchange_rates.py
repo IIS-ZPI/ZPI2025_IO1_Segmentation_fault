@@ -33,6 +33,14 @@ def get_exchange_rates(
     if start_datetime > end_datetime:
         raise ValueError("The end date cannot be before the start date!")
 
+    if currency.upper() == "PLN":
+        date_range = pandas.date_range(start=start_datetime, end=end_datetime)
+        pln_dataframe = pandas.DataFrame({
+            "date": date_range,
+            "rate": 1.0
+        })
+        return pln_dataframe
+
     for table in ("a", "b"):
         endpoint = f"https://api.nbp.pl/api/exchangerates/rates/{table}/{currency.lower()}/{start_date}/{end_date}/?format=json"
         response = requests.get(endpoint)
