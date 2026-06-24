@@ -37,6 +37,7 @@ CURRENCIES = {
     "NOK": "Norwegian Krone",
     "NZD": "New Zealand Dollar",
     "PHP": "Philippine Peso",
+    "PLN": "Polish Zloty",
     "RON": "Romanian Leu",
     "SEK": "Swedish Krona",
     "SGD": "Singapore Dollar",
