@@ -1,13 +1,11 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 
 import pandas
 import requests
-import streamlit
 
 FIRST_VALID_DATE = datetime(2002, 1, 2)
 
 
-@streamlit.cache_data(ttl=timedelta(hours=1))
 def get_exchange_rates(
     currency: str, start_date: str, end_date: str
 ) -> pandas.DataFrame:
