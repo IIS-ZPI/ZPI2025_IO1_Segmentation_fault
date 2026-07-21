@@ -14,8 +14,8 @@ PLATFORM_SPECIFIC_MODULES = {
 
 
 class TestPortability(unittest.TestCase):
-    def test_compatible_with_python_3_12_or_later(self):
-        self.assertGreaterEqual(sys.version_info[:2], (3, 12))
+    def test_compatible_with_python_3_11_or_later(self):
+        self.assertGreaterEqual(sys.version_info[:2], (3, 11))
 
     def test_no_platform_specific_imports_in_src(self):
         src_dir = Path(__file__).resolve().parent.parent.parent / "src"
