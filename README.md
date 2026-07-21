@@ -162,6 +162,11 @@ test so cached results never leak between test cases.
 UML diagrams describing the system live in [`diagrams/`](diagrams/): an activity diagram,
 a components diagram, and a sequence diagram.
 
+## Diagrams
+
+UML diagrams describing the system live in [`diagrams/`](diagrams/): an activity diagram,
+a components diagram, and a sequence diagram.
+
 ## Continuous Integration / Delivery
 
 - **CI** (`.github/workflows/ci.yml`) — on pull requests to `main`, `develop`, and
