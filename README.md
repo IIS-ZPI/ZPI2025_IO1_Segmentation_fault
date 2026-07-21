@@ -40,6 +40,14 @@ The UI ships with **English** and **Polish** translations, switchable from the l
 selector in the header. English is the default. Translations live in
 [`src/ui/i18n.py`](src/ui/i18n.py).
 
+### Response caching (no redundant API calls)
+Exchange-rate lookups are cached so the app never repeats an identical request. Every
+result from `get_exchange_rates` is memoized with `streamlit.cache_data` for **1 hour**,
+so re-running a page (Streamlit re-executes the whole script on each interaction) or
+revisiting the same currency and period reuses the cached data instead of calling the NBP
+API again. On the Forex Pair page, selecting the **same currency on both sides** reuses the
+first fetch rather than issuing a second, identical call.
+
 ## Tech Stack
 
 - **[Streamlit](https://streamlit.io/)** — web UI
@@ -73,9 +81,11 @@ selector in the header. English is the default. Translations live in
 │       ├── session_analysis.py           # Counts rising / steady / falling sessions
 │       └── change_distribution_analysis.py  # Frequency distribution of day-to-day changes
 └── tests/
+    ├── conftest.py         # Shared fixtures (clears the exchange-rate cache between tests)
     ├── test_*.py           # Unit tests for the utils modules
     ├── integration/        # End-to-end pipeline tests (NBP fetch → analysis)
-    └── acceptance/         # Streamlit page-rendering tests (AppTest)
+    ├── acceptance/         # Streamlit page-rendering tests (AppTest)
+    └── non_functional/     # Performance, portability & security tests
 ```
 
 ## Getting Started
@@ -115,13 +125,23 @@ Tests live in the `tests/` directory and use [pytest](https://docs.pytest.org/):
 pytest tests/
 ```
 
-They are organized into three layers:
+They are organized into four layers:
 
 - **Unit tests** (`tests/test_*.py`) — cover the individual `utils` modules.
 - **Integration tests** (`tests/integration/`) — exercise the full pipeline from an NBP
   response through each analysis step.
 - **Acceptance tests** (`tests/acceptance/`) — render the Streamlit pages with mocked data
   using Streamlit's `AppTest`.
+- **Non-functional tests** (`tests/non_functional/`) — verify quality attributes rather
+  than features:
+  - *Performance* — results are produced within a two-second budget, and identical
+    requests hit the cache instead of the network (no redundant API calls).
+  - *Portability* — the code runs on Python 3.11+ and imports no platform-specific
+    modules, so the same source works on Linux and Windows.
+  - *Security* — all communication with the NBP API goes over HTTPS.
+
+A shared `tests/conftest.py` fixture clears the `get_exchange_rates` cache before each
+test so cached results never leak between test cases.
 
 ## Data Source & Limitations
 
@@ -133,6 +153,14 @@ They are organized into three layers:
 - The earliest available date is **2 January 2002**; the end date cannot be in the future.
 - The NBP API publishes rates only on banking days, so non-trading days are absent from
   the data.
+- Responses are cached for **1 hour** (`streamlit.cache_data`), so identical requests are
+  served from memory rather than re-fetched. New data published within that window is not
+  picked up until the cache entry expires.
+
+## Diagrams
+
+UML diagrams describing the system live in [`diagrams/`](diagrams/): an activity diagram,
+a components diagram, and a sequence diagram.
 
 ## Diagrams
 
