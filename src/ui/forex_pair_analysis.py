@@ -221,11 +221,14 @@ def render():
                 start_date.strftime("%Y-%m-%d"),
                 end_date.strftime("%Y-%m-%d"),
             )
-            rates_2 = get_exchange_rates(
-                currency_2,
-                start_date.strftime("%Y-%m-%d"),
-                end_date.strftime("%Y-%m-%d"),
-            )
+            if currency_1 == currency_2:
+                rates_2 = rates_1.copy()
+            else:
+                rates_2 = get_exchange_rates(
+                    currency_2,
+                    start_date.strftime("%Y-%m-%d"),
+                    end_date.strftime("%Y-%m-%d"),
+                )
     except Exception as e:
         streamlit.error(translate("failed_to_retrieve", error=e))
         return
